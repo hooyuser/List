@@ -35,6 +35,82 @@ void List<T>::copyNodes(ListNodePosi(T) p, int n)  //ÁĞ±íÄÚ²¿·½·¨£º¸´ÖÆÁĞ±íÖĞ×ÔÎ
 }
 
 
+//template<typename T>
+//void List<T>::merge(ListNodePosi(T)& p, int n, List<T>& L, ListNodePosi(T) q, int m)  //½«ÓĞĞòÁĞ±í[q,q+m)²¢Èë[p,p+n),µÃµ½[p,p+n+m)
+//{
+//	while (m > 0)  
+//	{
+//		if (p->data > q->data)
+//		{
+//			q = q->succ;
+//			insertB(p, L.remove(q->pred));
+//			m--;
+//		}
+//		else
+//		{
+//			if (n > 1)
+//			{
+//				p = p->succ;
+//				n--;
+//			}
+//			else
+//			{
+//				while (m--)
+//				{
+//					insertA(p, q);
+//					p = p->succ;
+//					q = q->succ;
+//				}
+//			}
+//		}
+//	}
+//
+//}
+//
+//template<typename T>
+//void List<T>::mergeSort(ListNodePosi(T)& p, int n)
+//{
+//	ListNodePosi(T) q = p;
+//	for (int m = 0; m < n / 2; m++)
+//		q = q->succ;
+//	mergeSort(p, n / 2);
+//	mergeSort(q, n - n / 2);
+//	merge(p, n / 2, this, q, n - n / 2);
+//}
+
+
+
+template <typename T> //ÁĞ±íµÄ¹é²¢ÅÅĞòËã·¨£º¶ÔÆğÊ¼ÓÚÎ»ÖÃpµÄn¸öÔªËØÅÅĞò
+void List<T>::mergeSort(ListNodePosi(T) & p, int n) { //valid(p) && rank(p) + n <= size
+	if (n < 2) return; //Èô´ıÅÅĞò·¶Î§ÒÑ×ã¹»Ğ¡£¬ÔòÖ±½Ó·µ»Ø£»·ñÔò...
+	int m = n >> 1; //ÒÔÖĞµãÎª½ç
+	ListNodePosi(T) q = p; for (int i = 0; i < m; i++) q = q->succ; //¾ù·ÖÁĞ±í
+	mergeSort(p, m); mergeSort(q, n - m); //¶ÔÇ°¡¢ºó×ÓÁĞ±í·Ö±ğÅÅĞò
+	merge(p, m, *this, q, n - m); //¹é²¢
+
+} //×¢Òâ£ºÅÅĞòºó£¬pÒÀÈ»Ö¸Ïò¹é²¢ºóÇø¼äµÄ£¨ĞÂ£©Æğµã
+
+
+template <typename T> //ÓĞĞòÁĞ±íµÄ¹é²¢£ºµ±Ç°ÁĞ±íÖĞ×ÔpÆğµÄn¸öÔªËØ£¬ÓëÁĞ±íLÖĞ×ÔqÆğµÄm¸öÔªËØ¹é²¢
+void List<T>::merge(ListNodePosi(T) & p, int n, List<T>& L, ListNodePosi(T) q, int m) {
+	// assert:  this.valid(p) && rank(p) + n <= size && this.sorted(p, n)
+		//          L.valid(q) && rank(q) + m <= L._size && L.sorted(q, m)
+		// ×¢Òâ£ºÔÚ¹é²¢ÅÅĞòÖ®ÀàµÄ³¡ºÏ£¬ÓĞ¿ÉÄÜ this == L && rank(p) + n = rank(q)
+	ListNodePosi(T) pp = p->pred; //½èÖúÇ°Çı£¨¿ÉÄÜÊÇheader£©£¬ÒÔ±ã·µ»ØÇ° ...
+	while (0 < m) //ÔÚqÉĞÎ´ÒÆ³öÇø¼äÖ®Ç°
+		if ((0 < n) && (p->data <= q->data)) //ÈôpÈÔÔÚÇø¼äÄÚÇÒv(p) <= v(q)£¬Ôò
+		{
+			if (q == (p = p->succ)) break; n--;
+		} //p¹éÈëºÏ²¢µÄÁĞ±í£¬²¢Ìæ»»ÎªÆäÖ±½Óºó¼Ì
+		else //ÈôpÒÑ³¬³öÓÒ½ç»òv(q) < v(p)£¬Ôò
+		{
+			insertB(p, L.remove((q = q->succ)->pred)); m--;
+		} //½«q×ªÒÆÖÁpÖ®Ç°
+	p = pp->succ; //È·¶¨¹é²¢ºóÇø¼äµÄ£¨ĞÂ£©Æğµã
+
+}
+
+
 template <typename T>
 void List<T>::init()  //ÁĞ±í³õÊ¼»¯£¬ÔÚ´´½¨ÁĞ±í¶ÔÏóÊ±Í³Ò»µ÷ÓÃ
 {
@@ -75,18 +151,6 @@ T& List<T>::operator[] (Rank r) const  //ÖØÔØÏÂ±ê²Ù×÷·û£¬ÒÔÍ¨¹ıÖÈÖ±½Ó·ÃÎÊÁĞ±í½Úµ
 }
 
 
-template <typename T>  //ÔÚÎŞĞòÁĞ±íÄÚ½Úµãp£¨¿ÉÄÜÊÇtrailer£©µÄn¸ö£¨Õæ£©Ç°ÇıÖĞ£¬ÕÒµ½µÈÓÚeµÄ×îºóÕß
-ListNodePosi(T) List<T>::find(T const& e, int n, ListNodePosi(T) p) const
-{
-	while (0 < n--)  //£¨0 <= n <= rank(p) < _size£©¶ÔÓÚpµÄ×î½üµÄn¸öÇ°Çı£¬´ÓÓÒÏò×óÖğ¸ö±È¶Ô£¬Ö±ÖÁÃüÖĞ»ò·¶Î§Ô½½ç
-	{
-		p = p->pred;
-		if (e == p->data) return p;
-	}
-	return nullptr;  //pÔ½³ö×ó±ß½çÒâÎ¶×ÅÇø¼äÄÚ²»º¬e£¬²éÕÒÊ§°Ü£¬·µ»Ø¿ÕÖ¸Õë
-}
-
-
 template <typename T>
 ListNodePosi(T) List<T>::insertAsFirst(T const& e)  //eµ±×÷Ê×½Úµã²åÈë
 {
@@ -120,7 +184,7 @@ ListNodePosi(T) List<T>::insertB(ListNodePosi(T) p, T const& e)  //eµ±×÷pµÄÇ°Çı²
 
 
 template <typename T>
-T List<T>::remove(ListNodePosi(T) p)  //É¾³ıºÏ·¨½Úµãp£¬·µ»ØÆäÊıÖµ
+T List<T>::remove(ListNodePosi(T) p)  //É¾³ıºÏ·¨½Úµãp£¬·µ»ØÆäÊıÖµ£¬¸´ÔÓ¶È O(1)
 {
 	T e = p->data;  //±¸·İ´ıÉ¾³ı½ÚµãµÄÊıÖµ£¨¼Ù¶¨TÀàĞÍ¿ÉÖ±½Ó¸³Öµ£©
 	p->pred->succ = p->succ;  //ºó¼Ì
@@ -128,6 +192,13 @@ T List<T>::remove(ListNodePosi(T) p)  //É¾³ıºÏ·¨½Úµãp£¬·µ»ØÆäÊıÖµ
 	delete p;  //ÊÍ·Å½Úµã
 	_size--;  //¸üĞÂ¹æÄ£
 	return e;  //·µ»Ø±¸·İµÄÊıÖµ
+}
+
+
+template<typename T>
+void List<T>::sort(ListNodePosi(T) p, int n)
+{
+	mergeSort(p, n);
 }
 
 
@@ -148,32 +219,72 @@ int List<T>::deduplicate()  //ÌŞ³ıÎŞĞòÁĞ±íÖĞµÄÖØ¸´½Úµã
 	if (_size < 2)
 		return 0;  //Æ½·²ÁĞ±í×ÔÈ»ÎŞÖØ¸´
 	int oldSize = _size;  //¼ÇÂ¼Ô­¹æÄ£
-	ListNodePosi(T) p = header;
-	Rank r = 0;  //p´ÓÊ×½Úµã¿ªÊ¼
-	while (trailer != (p = p->succ))  //ÒÀ´ÎÖ±µ½Ä©½Úµã
+	ListNodePosi(T) p = header;  //p´ÓÊ×½Úµã¿ªÊ¼
+	Rank r = 0;
+	while ((p = p->succ) != trailer)  //ÒÀ´ÎÖ±µ½Ä©½Úµã
 	{
 		ListNodePosi(T) q = find(p->data, r, p);  //ÔÚpµÄr¸ö£¨Õæ£©Ç°ÇıÖĞ²éÕÒÀ×Í¬Õß
-		q ? remove(q) : r++;  //ÈôµÄÈ·´æÔÚ£¬ÔòÉ¾³ıÖ®£»·ñÔòÖÈ¼ÓÒ»
-	}  //assert: Ñ­»·¹ı³ÌÖĞµÄÈÎÒâÊ±¿Ì£¬pµÄËùÓĞÇ°Çı»¥²»ÏàÍ¬
+		q ? remove(q) : r++;  //Èô´æÔÚ£¬ÔòÉ¾³ıÖ®£»·ñÔòÖÈ¼ÓÒ»
+	}
+	//assert: Ñ­»·¹ı³ÌÖĞµÄÈÎÒâÊ±¿Ì£¬pµÄËùÓĞÇ°Çı»¥²»ÏàÍ¬
 	return oldSize - _size;  //ÁĞ±í¹æÄ£±ä»¯Á¿£¬¼´±»É¾³ıÔªËØ×ÜÊı
 }
 
 
 template <typename T>
-int List<T>::uniquify()  //ÌŞ³ıÓĞĞòÁĞ±íÖĞµÄÖØ¸´½Úµã
+int List<T>::uniquify()              //ÌŞ³ıÓĞĞòÁĞ±íÖĞµÄÖØ¸´½Úµã
 {
-	if (_size < 2) return 0;  //Æ½·²ÁĞ±í×ÔÈ»ÎŞÖØ¸´
-	int oldSize = _size;  //¼ÇÂ¼Ô­¹æÄ£
+	if (_size < 2)
+		return 0;                    //Æ½·²ÁĞ±í×ÔÈ»ÎŞÖØ¸´
+	int oldSize = _size;             //¼ÇÂ¼Ô­¹æÄ£
 	ListNodePosi(T) p = first();
-	ListNodePosi(T) q;  //pÎª¸÷Çø¶ÎÆğµã£¬qÎªÆäºó¼Ì
+	ListNodePosi(T) q;               //pÎª¸÷Çø¶ÎÆğµã£¬qÎªÆäºó¼Ì
 	while (trailer != (q = p->succ)) //·´¸´¿¼²é½ôÁÚµÄ½Úµã¶Ô(p, q)
 	{
 		if (p->data != q->data)
-			p = q;  //Èô»¥Òì£¬Ôò×ªÏòÏÂÒ»Çø¶Î
-		else remove(q);  //·ñÔò£¨À×Í¬£©£¬É¾³ıºóÕß
+			p = q;                   //Èô»¥Òì£¬Ôò×ªÏòÏÂÒ»Çø¶Î
+		else
+			remove(q);               //·ñÔòÉ¾³ıºóÕß
 	}
-	return oldSize - _size;  //ÁĞ±í¹æÄ£±ä»¯Á¿£¬¼´±»É¾³ıÔªËØ×ÜÊı
+	return oldSize - _size;          //ÁĞ±í¹æÄ£±ä»¯Á¿£¬¼´±»É¾³ıÔªËØ×ÜÊı
+}
 
+
+template <typename T>
+void List<T>::reverse()
+{ //Ç°ºóµ¹ÖÃ
+	if (_size < 2) return; //Æ½·²Çéƒê
+	for (ListNodePosi(T) p = header; p; p = p->pred) //×ÔÇ°Ïòºó£¬ÒÀ´Î
+		swap(p->pred, p->succ); //½»»»¸÷½Úµã°mÇ°Çı¡¢ºó¼ÌÖ¸Õë
+	swap(header, trailer); //Í·¡¢Î²½Úµã»¥»»
+}
+
+
+template <typename T>
+int List<T>::disordered() const
+{
+	int n = 0;
+	ListNodePosi(T) p = header;
+	while (p != trailer)
+		if (p > p->succ)
+		{
+			n++;
+			p = p->succ;
+		}
+	return n;
+}
+
+
+//ÔÚÎŞĞòÁĞ±íÄÚ½Úµãp£¨¿ÉÄÜÊÇtrailer£©µÄn¸ö£¨Õæ£©Ç°ÇıÖĞ£¬ÕÒµ½µÈÓÚeµÄ×îºóÕß
+template<typename T>
+ListNodePosi(T) List<T>::find(T const& e, int n, ListNodePosi(T) p) const
+{
+	while (0 < n--)  //£¨0 <= n <= rank(p) < _size£©¶ÔÓÚpµÄ×î½üµÄn¸öÇ°Çı£¬´ÓÓÒÏò×óÖğ¸ö±È¶Ô£¬Ö±ÖÁÃüÖĞ»ò·¶Î§Ô½½ç
+	{
+		p = p->pred;
+		if (e == p->data) return p;
+	}
+	return nullptr;  //pÔ½³ö×ó±ß½çÒâÎ¶×ÅÇø¼äÄÚ²»º¬e£¬²éÕÒÊ§°Ü£¬·µ»Ø¿ÕÖ¸Õë
 }
 
 
@@ -187,38 +298,60 @@ ListNodePosi(T) List<T>::search(T const& e, int n, ListNodePosi(T) p) const
 
 	} while ((-1 < n) && (e < p->data)); //Öğ¸ö±È½Ï£¬Ö±ÖÁÃüÖĞ»òÔ½½ç
 	return p; //·µ»Ø²éÕÒÖÕÖ¹µÄÎ»ÖÃ
-
 } //Ê§°ÜÊ±£¬·µ»ØÇø¼ä×ó±ß½çµÄÇ°Çı£¨¿ÉÄÜÊÇheader£©
 
 
+template<typename T>
+ListNodePosi(T) List<T>::selectMax(ListNodePosi(T) p, int n)
+{
+	ListNodePosi(T) max = p;
+	while (--n)  //Ö´ĞĞn-1´Î
+	{
+		p = p->succ;
+		if (p->data > max->data)
+			max->p;
+	}
+	return max;
+}
+
+
 template <typename T>
-void List<T>::selectionSort(ListNodePosi(T) p, int n) //ÁĞ±íµÄÑ¡ÔñÅÅĞòËã·¨£º¶ÔÆğÊ¼ÓÚÎ»ÖÃpµÄn¸öÔªËØÅÅĞò
-{ //valid(p) && rank(p) + n <= size
+void List<T>::selectionSort(ListNodePosi(T) p, int n)   //ÁĞ±íµÄÑ¡ÔñÅÅĞòËã·¨£º¶ÔÆğÊ¼ÓÚÎ»ÖÃpµÄn¸öÔªËØÅÅĞò
+{
+	//valid(p) && rank(p) + n <= size
 	ListNodePosi(T) head = p->pred;
 	ListNodePosi(T) tail = p;
 	for (int i = 0; i < n; i++)
-		tail = tail->succ; //´ıÅÅĞòÇø¼äÎª(head, tail)
-	while (1 < n)
-	{ //ÔÚÖÁÉÙ»¹Ê£Á½¸ö½ÚµãÖ®Ç°£¬ÔÚ´ıÅÅĞòÇø¼äÄÚ
-		ListNodePosi(T) max = selectMax(head->succ, n); //ÕÒ³ö×î´óÕß£¨ÆçÒåÊ±ºóÕßÓÅÏÈ£©
-		insertB(tail, remove(max)); //½«ÆäÒÆÖÁÎŞĞòÇø¼äÄ©Î²£¨×÷ÎªÓĞĞòÇø¼äĞÂµÄÊ×ÔªËØ£©
-		tail = tail->pred; n--;
+		tail = tail->succ;                               //´ıÅÅĞòÇø¼äÎª(head, tail)
+	while (1 < n)                                        //ÔÚÖÁÉÙ»¹Ê£Á½¸ö½ÚµãÖ®Ç°£¬ÔÚ´ıÅÅĞòÇø¼äÄÚ
+	{
+		ListNodePosi(T) max = selectMax(head->succ, n);  //ÕÒ³ö[head->succ, head->succ + n)ÖĞ×î´óÕß£¨ÆçÒåÊ±ºóÕßÓÅÏÈ£©
+		insertB(tail, remove(max));                      //½«ÆäÒÆÖÁÎŞĞòÇø¼äÄ©Î²£¨×÷ÎªÓĞĞòÇø¼äĞÂµÄÊ×ÔªËØ£©
+		tail = tail->pred;
+		n--;
 	}
 }
 
 
-template <typename T>
-void List<T>::traverse(void(*visit) (T&))  //½èÖúº¯ÊıÖ¸Õë»úÖÆ±éÀú
-{
-	for (ListNodePosi(T) p = header->succ; p != trailer; p = p->succ)
-		visit(p->data);
+template <typename T> //ÁĞ±íµÄ²åÈëÅÅĞòËã·¨£º¶ÔÆğÊ¼ÓÚÎ»ÖÃpµÄn¸öÔªËØÅÅĞò
+void List<T>::insertionSort(ListNodePosi(T) p, int n)
+{ //valid(p) && rank(p) + n <= size
+	for (int r = 0; r < n; r++)
+	{ //ÖğÒ»Îª¸÷½Úµã
+		insertA(search(p->data, r, p), p->data); //²éÕÒÊÊµ±µÄÎ»ÖÃ²¢²åÈë
+		p = p->succ;
+		remove(p->pred); //×ªÏòÏÂÒ»½Úµã
+	}
 }
 
 
-template <typename T>  //ÔªËØÀàĞÍ
-template <typename VST>  //²Ù×÷Æ÷
-void List<T>::traverse(VST& visit)  //½èÖúº¯Êı¶ÔÏó»úÖÆ±éÀú
+template <typename T> void List<T>::traverse(void(*visit) (T&)) //½èÖúº¯ÊıÖ¸Õë»úÖÆ±éÀú
 {
-	for (ListNodePosi(T) p = header->succ; p != trailer; p = p->succ)
-		visit(p->data);
+	for (ListNodePosi(T) p = header->succ; p != trailer; p = p->succ) visit(p->data);
+}
+
+template <typename T> template <typename VST> //ÔªËØÀàĞÍ¡¢²Ù×÷Æ÷
+void List<T>::traverse(VST& visit) //½èÖúº¯Êı¶ÔÏó»úÖÆ±éÀú
+{
+	for (ListNodePosi(T) p = header->succ; p != trailer; p = p->succ) visit(p->data);
 }

@@ -7,11 +7,12 @@ typedef int Rank;  //秩
 template <typename T>
 struct ListNode  //列表节点模板类（以双向链表形式实现）
 {
-	// 成员
+// 成员
 	T data;  //数值
 	ListNodePosi(T) pred;  //前驱
 	ListNodePosi(T) succ;  //后继
-	// 构造函数
+
+// 构造函数
 	ListNode() {}  //针对header和trailer的构造
 	ListNode(T e, ListNodePosi(T) p = nullptr, ListNodePosi(T) s = nullptr)
 		: data(e), pred(p), succ(s) {}  //默认构造器
@@ -35,60 +36,60 @@ protected:
 
 	int clear();  //清除所有节点
 
-	void copyNodes(ListNodePosi(T), int);  //复制列表中自位置p起的n项
+	void copyNodes(ListNodePosi(T) p, int n);  //复制列表中自位置p起的n项
 
-	void merge(ListNodePosi(T)&, int, List<T>&, ListNodePosi(T), int);  //归并
+	void merge(ListNodePosi(T)& p, int n, List<T>& L, ListNodePosi(T) q, int m);  //归并
 
-	void mergeSort(ListNodePosi(T)&, int);  //对从p开始连续的n个节点归并排序
+	void mergeSort(ListNodePosi(T)& p, int n);  //对从p开始连续的n个节点归并排序
 
-	void selectionSort(ListNodePosi(T), int);  //对从p开始连续的n个节点选择排序
+	void selectionSort(ListNodePosi(T) p, int n);  //对从p开始连续的n个节点选择排序
 
-	void insertionSort(ListNodePosi(T), int);  //对从p开始连续的n个节点插入排序
+	void insertionSort(ListNodePosi(T) p, int n);  //对从p开始连续的n个节点插入排序
 
 public:
-// 构造函数
+	// 构造函数
 	List() //默认构造函数
-	{ 
-		init(); 
-	}  
+	{
+		init();
+	}
 
 	List(List<T> const& L)  //整体复制列表L
 	{
 		copyNodes(L.first(), L.size());
 	}
-	
+
 	List(List<T> const& L, Rank r, int n);  //复制列表L中自第r项起的n项
-	
+
 	List(ListNodePosi(T) p, int n)  //复制列表中自位置p起的n项
 	{
 		copyNodes(p, n);
 	}
 
-// 析构函数
+	// 析构函数
 	~List();  //释放（包含头、尾哨兵在内的）所有节点
 
 // 只读访问接口
 	Rank size() const  //规模
-	{ 
-		return _size; 
-	} 
+	{
+		return _size;
+	}
 
 	bool empty() const  //判空
-	{ 
-		return _size <= 0; 
-	} 
+	{
+		return _size <= 0;
+	}
 
 	T& operator[] (Rank r) const;  //运算符[]重载，支持循秩访问（效率低）
 
 	ListNodePosi(T) first() const  //首节点位置
 	{
-		return header->succ; 
-	} 
+		return header->succ;
+	}
 
 	ListNodePosi(T) last() const  //末节点位置
-	{ 
-		return trailer->pred; 
-	} 
+	{
+		return trailer->pred;
+	}
 
 	bool valid(ListNodePosi(T) p)  //判断位置p是否对外合法
 	{
@@ -112,7 +113,10 @@ public:
 
 	ListNodePosi(T) selectMax(ListNodePosi(T) p, int n);  //在p及其n-1个后继中选出最大者
 
-	ListNodePosi(T) selectMax() { return selectMax(header->succ, _size); }  //整体最大者
+	ListNodePosi(T) selectMax()
+	{
+		return selectMax(header->succ, _size);
+	}  //整体最大者
 
 // 可写访问接口
 	ListNodePosi(T) insertAsFirst(T const& e);  //将e当作首节点插入
@@ -125,24 +129,29 @@ public:
 
 	T remove(ListNodePosi(T) p);  //删除合法位置p处的节点,返回被删除节点
 
-	void merge(List<T>& L) { merge(first(), size, L, L.first(), L._size); }  //全列表归并
+	void merge(List<T>& L)   //全列表归并
+	{
+		merge(first(), size, L, L.first(), L._size);
+	}
 
 	void sort(ListNodePosi(T) p, int n);  //列表区间排序
 
-	void sort() { sort(first(), _size); }  //列表整体排序
+	void sort()   //列表整体排序
+	{
+		sort(first(), _size);
+	}
 
 	int deduplicate();  //无序去重
 
 	int uniquify();  //有序去重
 
-	void reverse();  //前后倒置（习题）
+	void reverse();  //前后倒置
 
-// 遍历
-	void traverse(void(*) (T&));  //遍历，依次实施visit操作（函数指针，只读或局部性修改）
+	// 遍历
+	void traverse(void(*visit) (T&));  //遍历，依次实施visit操作（函数指针，只读或局部性修改）
 
 	template <typename VST>  //操作器
-
-	void traverse(VST&);  //遍历，依次实施visit操作（函数对象，可全局性修改）
+	void traverse(VST& visit);  //遍历，依次实施visit操作（函数对象，可全局性修改）
 
 };  //List
 
