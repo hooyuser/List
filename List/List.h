@@ -38,9 +38,9 @@ protected:
 
 	void copyNodes(ListNodePosi(T) p, int n);  //¸´ÖÆÁĞ±íÖĞ×ÔÎ»ÖÃpÆğµÄnÏî
 
-	void merge(ListNodePosi(T)& p, int n, List<T>& L, ListNodePosi(T) q, int m);  //¹é²¢
+	void merge(ListNodePosi(T) p, int n, List<T>& L, ListNodePosi(T) q, int m);  //¹é²¢
 
-	void mergeSort(ListNodePosi(T)& p, int n);  //¶Ô´Óp¿ªÊ¼Á¬ĞøµÄn¸ö½Úµã¹é²¢ÅÅĞò
+	void mergeSort(ListNodePosi(T) p, int n);  //¶Ô´Óp¿ªÊ¼Á¬ĞøµÄn¸ö½Úµã¹é²¢ÅÅĞò
 
 	void selectionSort(ListNodePosi(T) p, int n);  //¶Ô´Óp¿ªÊ¼Á¬ĞøµÄn¸ö½ÚµãÑ¡ÔñÅÅĞò
 
@@ -94,7 +94,7 @@ public:
 	bool valid(ListNodePosi(T) p)  //ÅĞ¶ÏÎ»ÖÃpÊÇ·ñ¶ÔÍâºÏ·¨
 	{
 		return p && (trailer != p) && (header != p);
-	}  //½«Í·¡¢Î²½ÚµãµÈÍ¬ÓÚNULL
+	}  //½«Í·¡¢Î²½ÚµãµÈÍ¬ÓÚnullptr
 
 	int disordered() const;  //ÅĞ¶ÏÁĞ±íÊÇ·ñÒÑÅÅĞò
 
@@ -131,7 +131,7 @@ public:
 
 	void merge(List<T>& L)   //È«ÁĞ±í¹é²¢
 	{
-		merge(first(), size, L, L.first(), L._size);
+		merge(header->succ, size(), L, L.header->succ, L.size());
 	}
 
 	void sort(ListNodePosi(T) p, int n);  //ÁĞ±íÇø¼äÅÅĞò
@@ -159,9 +159,6 @@ public:
 
 
 
-
-
-
 // ½ÚµãÄ£°å½á¹¹ÊµÏÖ
 template <typename T>
 ListNodePosi(T) ListNode<T>::insertAsPred(T const& e)  //½«e½ô¿¿µ±Ç°½ÚµãÖ®Ç°²åÈëÓÚµ±Ç°½ÚµãËùÊôÁĞ±í£¨ÉèÓĞÉÚ±øÍ·½Úµãheader£©
@@ -183,6 +180,8 @@ ListNodePosi(T) ListNode<T>::insertAsSucc(T const& e)  //½«e½ôËæµ±Ç°½ÚµãÖ®ºó²åÈë
 }
 
 
+
+
 // ÁĞ±íÄ£°åÀàÊµÏÖ
 template <typename T>
 void List<T>::copyNodes(ListNodePosi(T) p, int n)  //ÁĞ±íÄÚ²¿·½·¨£º¸´ÖÆÁĞ±íÖĞ×ÔÎ»ÖÃpÆğµÄnÏî
@@ -196,79 +195,47 @@ void List<T>::copyNodes(ListNodePosi(T) p, int n)  //ÁĞ±íÄÚ²¿·½·¨£º¸´ÖÆÁĞ±íÖĞ×ÔÎ
 }
 
 
-//template<typename T>
-//void List<T>::merge(ListNodePosi(T)& p, int n, List<T>& L, ListNodePosi(T) q, int m)  //½«ÓĞĞòÁĞ±í[q,q+m)²¢Èë[p,p+n),µÃµ½[p,p+n+m)
-//{
-//	while (m > 0)  
-//	{
-//		if (p->data > q->data)
-//		{
-//			q = q->succ;
-//			insertB(p, L.remove(q->pred));
-//			m--;
-//		}
-//		else
-//		{
-//			if (n > 1)
-//			{
-//				p = p->succ;
-//				n--;
-//			}
-//			else
-//			{
-//				while (m--)
-//				{
-//					insertA(p, q);
-//					p = p->succ;
-//					q = q->succ;
-//				}
-//			}
-//		}
-//	}
-//
-//}
-//
-//template<typename T>
-//void List<T>::mergeSort(ListNodePosi(T)& p, int n)
-//{
-//	ListNodePosi(T) q = p;
-//	for (int m = 0; m < n / 2; m++)
-//		q = q->succ;
-//	mergeSort(p, n / 2);
-//	mergeSort(q, n - n / 2);
-//	merge(p, n / 2, this, q, n - n / 2);
-//}
-
-
-
-template <typename T> //ÁĞ±íµÄ¹é²¢ÅÅĞòËã·¨£º¶ÔÆğÊ¼ÓÚÎ»ÖÃpµÄn¸öÔªËØÅÅĞò
-void List<T>::mergeSort(ListNodePosi(T) & p, int n) { //valid(p) && rank(p) + n <= size
-	if (n < 2) return; //Èô´ıÅÅĞò·¶Î§ÒÑ×ã¹»Ğ¡£¬ÔòÖ±½Ó·µ»Ø£»·ñÔò...
-	int m = n >> 1; //ÒÔÖĞµãÎª½ç
-	ListNodePosi(T) q = p; for (int i = 0; i < m; i++) q = q->succ; //¾ù·ÖÁĞ±í
-	mergeSort(p, m); mergeSort(q, n - m); //¶ÔÇ°¡¢ºó×ÓÁĞ±í·Ö±ğÅÅĞò
-	merge(p, m, *this, q, n - m); //¹é²¢
-
-} //×¢Òâ£ºÅÅĞòºó£¬pÒÀÈ»Ö¸Ïò¹é²¢ºóÇø¼äµÄ£¨ĞÂ£©Æğµã
-
-
-template <typename T> //ÓĞĞòÁĞ±íµÄ¹é²¢£ºµ±Ç°ÁĞ±íÖĞ×ÔpÆğµÄn¸öÔªËØ£¬ÓëÁĞ±íLÖĞ×ÔqÆğµÄm¸öÔªËØ¹é²¢
-void List<T>::merge(ListNodePosi(T) & p, int n, List<T>& L, ListNodePosi(T) q, int m) {
-	// assert:  this.valid(p) && rank(p) + n <= size && this.sorted(p, n)
-	//          L.valid(q) && rank(q) + m <= L._size && L.sorted(q, m)
-	// ×¢Òâ£ºÔÚ¹é²¢ÅÅĞòÖ®ÀàµÄ³¡ºÏ£¬ÓĞ¿ÉÄÜ this == L && rank(p) + n = rank(q)
-	ListNodePosi(T) pp = p->pred; //½èÖúÇ°Çı£¨¿ÉÄÜÊÇheader£©£¬ÒÔ±ã·µ»ØÇ° ...
-	while (0 < m) //ÔÚqÉĞÎ´ÒÆ³öÇø¼äÖ®Ç°
-		if ((0 < n) && (p->data <= q->data)) //ÈôpÈÔÔÚÇø¼äÄÚÇÒv(p) <= v(q)£¬Ôò
+template<typename T>
+void List<T>::merge(ListNodePosi(T) p, int n, List<T>& L, ListNodePosi(T) q, int m)  //½«ÓĞĞòÁĞ±í[q,q+m)²¢Èë[p,p+n),µÃµ½[p,p+n+m)
+{
+	while (m > 0)  
+	{
+		if (p->data > q->data)
 		{
-			if (q == (p = p->succ)) break; n--;
-		} //p¹éÈëºÏ²¢µÄÁĞ±í£¬²¢Ìæ»»ÎªÆäÖ±½Óºó¼Ì
-		else //ÈôpÒÑ³¬³öÓÒ½ç»òv(q) < v(p)£¬Ôò
+			q = q->succ;
+			insertB(p, L.remove(q->pred));
+			m--;
+		}
+		else
 		{
-			insertB(p, L.remove((q = q->succ)->pred)); m--;
-		} //½«q×ªÒÆÖÁpÖ®Ç°
-	p = pp->succ; //È·¶¨¹é²¢ºóÇø¼äµÄ£¨ĞÂ£©Æğµã
+			if (n > 1)
+			{
+				p = p->succ;
+				n--;
+			}
+			else
+			{
+				while (m--)
+				{   
+					q = q->succ;
+					insertA(p, L.remove(q->pred));
+					p = p->succ;				
+				}
+			}
+		}
+	}
+}
 
+
+template<typename T>
+void List<T>::mergeSort(ListNodePosi(T) p, int n)
+{
+	ListNodePosi(T) q = p;
+	for (int m = 0; m < n / 2; m++)
+		q = q->succ;
+	mergeSort(p, n / 2);
+	mergeSort(q, n - n / 2);
+	merge(p, n / 2, *this, q, n - n / 2);
 }
 
 
