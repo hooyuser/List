@@ -1,5 +1,4 @@
 #include "List.h"
-#include "List.cpp"
 #include <iostream>
 
 using namespace std;
